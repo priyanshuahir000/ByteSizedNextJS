@@ -3,24 +3,35 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function SignupPage() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    terms: false,
+  });
   const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
-    // Validate email and password
+    // Validate form data
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isEmailValid = emailRegex.test(email);
-    const isPasswordValid = password.length >= 6;
+    const isEmailValid = emailRegex.test(formData.email);
+    const isPasswordValid = formData.password.length >= 6;
 
-    setIsValid(isEmailValid && isPasswordValid);
-  }, [email, password]);
+    setIsValid(isEmailValid && isPasswordValid && formData.terms);
+  }, [formData]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid) {
-      // Handle login logic here
+      // Handle signup logic here
     }
   };
 
@@ -29,7 +40,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm p-8">
         <div>
           <h2 className="text-center text-2xl font-light text-gray-800 mb-8">
-            Log in
+            Create account
           </h2>
         </div>
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -40,10 +51,10 @@ export default function LoginPage() {
                 name="email"
                 type="email"
                 required
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-3 py-2 text-gray-800 bg-gray-50 border-b-2 border-gray-200 focus:border-gray-800 outline-none transition-all duration-300 text-sm"
                 placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -52,10 +63,10 @@ export default function LoginPage() {
                 name="password"
                 type="password"
                 required
-                className="w-full px-3 py-2  text-gray-800 bg-gray-50 border-b-2 border-gray-200 focus:border-gray-800 outline-none transition-all duration-300 text-sm"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-3 py-2 text-gray-800 bg-gray-50 border-b-2 border-gray-200 focus:border-gray-800 outline-none transition-all duration-300 text-sm"
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
@@ -63,22 +74,16 @@ export default function LoginPage() {
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center">
               <input
-                id="remember-me"
-                name="remember-me"
+                id="terms"
+                name="terms"
                 type="checkbox"
+                defaultChecked={true}
                 className="h-4 w-4 text-gray-800 focus:ring-gray-700 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 text-gray-600">
-                Remember me
+              <label htmlFor="terms" className="ml-2 text-gray-600">
+                I agree to terms
               </label>
             </div>
-
-            <Link
-              href="/forgot-password"
-              className="text-gray-600 hover:text-gray-800"
-            >
-              Forgot password?
-            </Link>
           </div>
 
           <div>
@@ -91,14 +96,14 @@ export default function LoginPage() {
                   : "bg-gray-800 cursor-not-allowed"
               }`}
             >
-              Log in
+              Create account
             </button>
           </div>
 
           <p className="text-center text-sm text-gray-500">
-            Don't have an account?{" "}
-            <Link href="/signup" className="text-gray-800 hover:underline">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/login" className="text-gray-800 hover:underline">
+              Sign in
             </Link>
           </p>
         </form>
