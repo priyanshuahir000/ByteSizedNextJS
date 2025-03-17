@@ -2,22 +2,27 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { axios } from "axios";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
-    terms: false,
   });
   const [isValid, setIsValid] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Validate form data
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isEmailValid = emailRegex.test(formData.email);
     const isPasswordValid = formData.password.length >= 6;
+    const isUsernameValid = formData.username.length >= 3;
 
-    setIsValid(isEmailValid && isPasswordValid && formData.terms);
+    setIsValid(isEmailValid && isPasswordValid && isUsernameValid);
   }, [formData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,12 +33,35 @@ export default function SignupPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid) {
+      setIsLoading(true);
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setIsLoading(false);
       // Handle signup logic here
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-full max-w-sm p-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded-sm w-3/4 mx-auto" />
+            <div className="space-y-5">
+              <div className="h-10 bg-gray-200 rounded-sm" />
+              <div className="h-10 bg-gray-200 rounded-sm" />
+              <div className="h-10 bg-gray-200 rounded-sm" />
+            </div>
+            <div className="h-10 bg-gray-200 rounded-sm" />
+            <div className="h-4 bg-gray-200 rounded-sm w-1/2 mx-auto" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -45,6 +73,18 @@ export default function SignupPage() {
         </div>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-5">
+            <div>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full px-3 py-2 text-gray-800 bg-gray-50 border-b-2 border-gray-200 focus:border-gray-800 outline-none transition-all duration-300 text-sm"
+                placeholder="Username"
+              />
+            </div>
             <div>
               <input
                 id="email-address"
@@ -68,21 +108,6 @@ export default function SignupPage() {
                 className="w-full px-3 py-2 text-gray-800 bg-gray-50 border-b-2 border-gray-200 focus:border-gray-800 outline-none transition-all duration-300 text-sm"
                 placeholder="Password"
               />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                defaultChecked={true}
-                className="h-4 w-4 text-gray-800 focus:ring-gray-700 border-gray-300 rounded"
-              />
-              <label htmlFor="terms" className="ml-2 text-gray-600">
-                I agree to terms
-              </label>
             </div>
           </div>
 
