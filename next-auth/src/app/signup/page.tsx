@@ -1,137 +1,143 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { axios } from "axios";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export default function SignupPage() {
-  const [formData, setFormData] = useState({
+  const router = useRouter();
+  const [user, setUser] = useState({
     username: "",
     email: "",
     password: "",
   });
-  const [isValid, setIsValid] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Validate form data
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isEmailValid = emailRegex.test(formData.email);
-    const isPasswordValid = formData.password.length >= 6;
-    const isUsernameValid = formData.username.length >= 3;
+    if (
+      user.email.length > 0 &&
+      user.password.length > 0 &&
+      user.username.length > 0
+    ) {
+      setButtonDisabled(false);
+    } else {
+      setButtonDisabled(true);
+    }
+  }, [user]);
 
-    setIsValid(isEmailValid && isPasswordValid && isUsernameValid);
-  }, [formData]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isValid) {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setIsLoading(false);
-      // Handle signup logic here
+  const onSignup = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post("/api/users/signup", user);
+      console.log("Signup success", response.data);
+      toast.success("Account created successfully");
+      router.push("/login");
+    } catch (error: any) {
+      console.log("Signup failed", error.message);
+      toast.error(error.response?.data?.error || "Signup failed");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-full max-w-sm p-8">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded-sm w-3/4 mx-auto" />
-            <div className="space-y-5">
-              <div className="h-10 bg-gray-200 rounded-sm" />
-              <div className="h-10 bg-gray-200 rounded-sm" />
-              <div className="h-10 bg-gray-200 rounded-sm" />
-            </div>
-            <div className="h-10 bg-gray-200 rounded-sm" />
-            <div className="h-4 bg-gray-200 rounded-sm w-1/2 mx-auto" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-full max-w-sm p-8">
-        <div>
-          <h2 className="text-center text-2xl font-light text-gray-800 mb-8">
-            Create account
-          </h2>
-        </div>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-5">
-            <div>
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          {loading ? "Processing..." : "Create a new account"}
+        </h2>
+      </div>
+
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="space-y-6">
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Username
+            </label>
+            <div className="mt-2">
               <input
                 id="username"
                 name="username"
                 type="text"
+                autoComplete="username"
                 required
-                value={formData.username}
-                onChange={handleChange}
-                className="w-full px-3 py-2 text-gray-800 bg-gray-50 border-b-2 border-gray-200 focus:border-gray-800 outline-none transition-all duration-300 text-sm"
-                placeholder="Username"
+                value={user.username}
+                onChange={(e) => setUser({ ...user, username: e.target.value })}
+                className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
-            <div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Email address
+            </label>
+            <div className="mt-2">
               <input
-                id="email-address"
+                id="email"
                 name="email"
                 type="email"
+                autoComplete="email"
                 required
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 text-gray-800 bg-gray-50 border-b-2 border-gray-200 focus:border-gray-800 outline-none transition-all duration-300 text-sm"
-                placeholder="Email address"
+                value={user.email}
+                onChange={(e) => setUser({ ...user, email: e.target.value })}
+                className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
-            <div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Password
+            </label>
+            <div className="mt-2">
               <input
                 id="password"
                 name="password"
                 type="password"
+                autoComplete="new-password"
                 required
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-3 py-2 text-gray-800 bg-gray-50 border-b-2 border-gray-200 focus:border-gray-800 outline-none transition-all duration-300 text-sm"
-                placeholder="Password"
+                value={user.password}
+                onChange={(e) => setUser({ ...user, password: e.target.value })}
+                className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
 
           <div>
             <button
-              type="submit"
-              disabled={!isValid}
-              className={`w-full py-2 px-4 text-white text-sm transition-colors duration-300 ${
-                isValid
-                  ? "bg-gray-800 hover:bg-gray-700"
-                  : "bg-gray-800 cursor-not-allowed"
+              onClick={onSignup}
+              disabled={buttonDisabled || loading}
+              className={`flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
+                buttonDisabled ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              Create account
+              {loading ? "Creating account..." : "Sign up"}
             </button>
           </div>
+        </div>
 
-          <p className="text-center text-sm text-gray-500">
-            Already have an account?{" "}
-            <Link href="/login" className="text-gray-800 hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </form>
+        <p className="mt-10 text-center text-sm text-gray-500">
+          Already have an account?{" "}
+          <Link
+            href="/login"
+            className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+          >
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );
