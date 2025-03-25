@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { email, password } = reqBody;
 
-    // check if user exists
+    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
@@ -20,20 +20,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // check if password is correct
+    // Check if password is correct
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return NextResponse.json({ error: "Invalid password" }, { status: 400 });
     }
 
-    // create token data
+    // Create token data
     const tokenData = {
       id: user._id,
       username: user.username,
       email: user.email,
     };
 
-    // create token
+    // Create token
     const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
       expiresIn: "1d",
     });
@@ -43,9 +43,13 @@ export async function POST(request: NextRequest) {
       success: true,
     });
 
-    // set token in cookie
+    // Set cookie with token
     response.cookies.set("token", token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24, // 1 day
+      sameSite: "strict",
+      path: "/",
     });
 
     return response;
