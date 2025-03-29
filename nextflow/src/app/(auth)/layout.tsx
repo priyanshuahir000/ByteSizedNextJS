@@ -1,6 +1,6 @@
 "use client";
 import { useAuthStore } from "@/store/Auth";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
