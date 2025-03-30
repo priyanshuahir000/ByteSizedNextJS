@@ -1,7 +1,7 @@
 "use client";
 
 import RTE from "@/components/RTE";
-import {Meteors} from "@/components/magicui/meteors";
+import Meteors from "@/components/magicui/meteors";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/store/Auth";
